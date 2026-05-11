@@ -13,7 +13,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.define "db" do |db|
         db.vm.provision :shell,
-            path: "bs-db.sh"
+            path: "shell/bs-db.sh"
         db.vm.hostname = "db"
         db.vm.network "private_network", ip: SERVICES['db'][:ip]
         db.vm.synced_folder "./etc/mysql/custom", "/etc/mysql/conf.d/custom",
@@ -23,10 +23,23 @@ Vagrant.configure("2") do |config|
 
   config.vm.define "web" do |web|
         web.vm.provision :shell,
-            path: "bs-web.sh"
+            path: "shell/bs-web.sh"
+
+        web.provision "file",
+            source: "./tmp/sftp.conf",
+            destination: "/tmp/sftp.conf",
+            name: "configure-sftp",
+            run: "never"
+        web.vm.provision :shell,
+            path: "shell/configure-sftp.sh",
+            name: "configure-sftp",
+            run: "never"
+
         web.vm.hostname = "web"
+
         web.vm.network "private_network", ip: SERVICES['web'][:ip]
         web.vm.network "forwarded_port", guest: 80, host: 8080
+
         web.vm.synced_folder ".", "/var/www",
             owner: "vagrant",
             group: "www-data",
@@ -37,6 +50,7 @@ Vagrant.configure("2") do |config|
         web.vm.synced_folder "./etc/php/custom", "/etc/php/8.1/fpm/conf.d/custom",
             owner: "vagrant",
             group: "root"
+
   end
 
 end
