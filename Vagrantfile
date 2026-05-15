@@ -25,15 +25,11 @@ Vagrant.configure("2") do |config|
         web.vm.provision :shell,
             path: "shell/bs-web.sh"
 
-        web.provision "file",
+        web.vm.provision "file",
             source: "./tmp/sftp.conf",
-            destination: "/tmp/sftp.conf",
-            name: "configure-sftp",
-            run: "never"
+            destination: "/tmp/sftp.conf"
         web.vm.provision :shell,
-            path: "shell/configure-sftp.sh",
-            name: "configure-sftp",
-            run: "never"
+            path: "shell/configure-sftp.sh"
 
         web.vm.hostname = "web"
 
